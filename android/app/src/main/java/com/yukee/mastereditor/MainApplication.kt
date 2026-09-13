@@ -1,4 +1,4 @@
-package com.rntest
+package com.yukee.mastereditor
 
 import android.app.Application
 import com.facebook.react.PackageList
