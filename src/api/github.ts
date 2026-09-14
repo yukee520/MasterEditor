@@ -28,3 +28,18 @@ export async function getRepo(
   const { data } = await client.get<GitHubRepo>(`/repos/${owner}/${repo}`);
   return data;
 }
+
+/**
+ * List repos that are marked as "template" in the user's account.
+ */
+export async function listTemplateRepos(token: string): Promise<GitHubRepo[]> {
+  const client = createGitHubClient(token);
+  const { data } = await client.get<GitHubRepo[]>('/user/repos', {
+    params: {
+      sort: 'updated',
+      per_page: 100,
+      affiliation: 'owner',
+    },
+  });
+  return data.filter((r) => r.is_template);
+}
