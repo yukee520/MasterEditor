@@ -34,7 +34,10 @@ export async function getFileContent(
     throw new Error('Path is a directory, not a file');
   }
   if (!data.content || data.encoding !== 'base64') {
-    throw new Error('File has no base64 content');
+    if (data.size > 1024 * 1024) {
+      throw new Error(`File is too large to edit (${(data.size / 1024 / 1024).toFixed(1)} MB). GitHub only returns content for files under 1 MB.`);
+    }
+    throw new Error('File content not available yet. Try again in a few seconds or pull to refresh.');
   }
 
   const text = base64Decode(data.content);

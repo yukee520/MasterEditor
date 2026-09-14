@@ -30,14 +30,23 @@ export default function NewFileModal({
   onCreated,
 }: Props) {
   const { token } = useAuthStore();
+  const [folderPath, setFolderPath] = useState(currentPath);
   const [fileName, setFileName] = useState('');
   const [content, setContent] = useState('');
   const [creating, setCreating] = useState(false);
+
+  // Update folder path when modal is opened with a new currentPath
+  React.useEffect(() => {
+    if (visible) {
+      setFolderPath(currentPath);
+    }
+  }, [visible, currentPath]);
 
   function reset() {
     setFileName('');
     setContent('');
     setCreating(false);
+    setFolderPath(currentPath);
   }
 
   function handleClose() {
@@ -66,11 +75,15 @@ export default function NewFileModal({
       return;
     }
 
-    const fullPath = currentPath ? `${currentPath}/${name}` : name;
+    const cleanFolder = folderPath.trim().replace(/^\/+|\/+$/g, '');
+    const fullPath = cleanFolder ? `${cleanFolder}/${name}` : name;
 
     setCreating(true);
     try {
-      await putFileContent(
+      console.log('[NewFile] Creating:', fullPath);
+      console.log('[NewFile] Owner:', owner, 'Repo:', repo);
+
+      const response = await putFileContent(
         token,
         owner,
         repo,
@@ -78,14 +91,32 @@ export default function NewFileModal({
         content,
         `Create ${name} [skip ci]`,
       );
-      Alert.alert('Created', `${fullPath} added to repository`);
+
+      console.log('[NewFile] Success:', response);
+
+      // Give GitHub a moment to index
+      await new Promise((r) => setTimeout(r, 1500));
+
+      setCreating(false);
       reset();
-      onCreated();
-    } catch (e: any) {
       Alert.alert(
-        'Create failed',
-        e?.response?.data?.message || e?.message || 'Unknown error',
+        'Created',
+        `${fullPath} added to repository`,
+        [{ text: 'OK', onPress: () => { onClose(); onCreated(); } }],
       );
+    } catch (e: any) {
+      console.log('[NewFile] Error:', e?.response?.status, e?.response?.data, e?.message);
+      const status = e?.response?.status;
+      const apiMsg = e?.response?.data?.message;
+      let msg = apiMsg || e?.message || 'Unknown error';
+      if (status === 404) {
+        msg = `Repo ${owner}/${repo} not found OR path doesn't exist.`;
+      } else if (status === 403) {
+        msg = 'Token missing permissions (need repo scope).';
+      } else if (status === 422) {
+        msg = `Invalid request: ${apiMsg || 'check file name/path'}`;
+      }
+      Alert.alert('Create failed', `[${status || 'network'}] ${msg}`);
     } finally {
       setCreating(false);
     }
@@ -114,9 +145,17 @@ export default function NewFileModal({
         </View>
 
         <ScrollView contentContainerClassName="p-5">
-          <Text className="text-xs text-muted mb-4">
-            Creating in: <Text className="font-mono">{currentPath || '/'}</Text>
-          </Text>
+          <Text className="text-sm font-semibold text-text mb-2">Folder</Text>
+          <TextInput
+            className="bg-card border border-border rounded-xl px-4 py-3 text-text font-mono text-xs mb-5"
+            placeholder="(root)"
+            placeholderTextColor="#94A3B8"
+            value={folderPath}
+            onChangeText={setFolderPath}
+            autoCapitalize="none"
+            autoCorrect={false}
+            editable={!creating}
+          />
 
           <Text className="text-sm font-semibold text-text mb-2">File name</Text>
           <TextInput
