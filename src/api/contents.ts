@@ -33,15 +33,41 @@ export async function getFileContent(
   if (Array.isArray(data)) {
     throw new Error('Path is a directory, not a file');
   }
-  if (!data.content || data.encoding !== 'base64') {
-    if (data.size > 1024 * 1024) {
-      throw new Error(`File is too large to edit (${(data.size / 1024 / 1024).toFixed(1)} MB). GitHub only returns content for files under 1 MB.`);
-    }
-    throw new Error('File content not available yet. Try again in a few seconds or pull to refresh.');
+  // Empty file — return empty string with sha
+  if (data.size === 0 || data.content === '' || data.content === null) {
+    return { text: '', sha: data.sha };
   }
 
-  const text = base64Decode(data.content);
-  return { text, sha: data.sha };
+  // Normal base64 content
+  if (data.content && data.encoding === 'base64') {
+    const text = base64Decode(data.content);
+    return { text, sha: data.sha };
+  }
+
+  // Too large
+  if (data.size > 1024 * 1024) {
+    throw new Error(
+      `File is too large to edit (${(data.size / 1024 / 1024).toFixed(1)} MB). GitHub only returns content for files under 1 MB.`,
+    );
+  }
+
+  // Fallback: fetch via raw URL
+  if (data.download_url) {
+    try {
+      const axios = require('axios');
+      const raw = await axios.get(data.download_url, {
+        responseType: 'text',
+        transformResponse: [(d: any) => d],
+      });
+      return { text: String(raw.data), sha: data.sha };
+    } catch {
+      // fallthrough
+    }
+  }
+
+  throw new Error(
+    `File content not available (encoding: ${data.encoding || 'none'}).`,
+  );
 }
 
 /**

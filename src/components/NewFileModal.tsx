@@ -78,6 +78,21 @@ export default function NewFileModal({
     const cleanFolder = folderPath.trim().replace(/^\/+|\/+$/g, '');
     const fullPath = cleanFolder ? `${cleanFolder}/${name}` : name;
 
+    // Warn if creating an empty file
+    if (!content.trim()) {
+      const proceed = await new Promise<boolean>((resolve) => {
+        Alert.alert(
+          'Empty file?',
+          'The file has no content. You can add content later. Continue?',
+          [
+            { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+            { text: 'Create empty', onPress: () => resolve(true) },
+          ],
+        );
+      });
+      if (!proceed) return;
+    }
+
     setCreating(true);
     try {
       console.log('[NewFile] Creating:', fullPath);
