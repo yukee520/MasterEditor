@@ -14,7 +14,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 
 import { useAuthStore } from '../store/useAuthStore';
 import { useWorkflowRuns } from '../hooks/useWorkflowRuns';
-import { listRunArtifacts, WorkflowRun } from '../api/workflows';
+import { listRunArtifacts, triggerWorkflow, WorkflowRun } from '../api/workflows';
 
 type RouteParams = {
   owner?: string;
@@ -64,6 +64,36 @@ export default function BuildsScreen() {
     useWorkflowRuns(token, owner ?? '', repo ?? '');
 
   const [downloading, setDownloading] = useState<number | null>(null);
+  const [building, setBuilding] = useState(false);
+
+  async function handleBuildNow() {
+    if (!token || !owner || !repo) return;
+    Alert.alert(
+      'Trigger build?',
+      `This will run the GitHub Actions workflow for ${owner}/${repo}.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Build now',
+          onPress: async () => {
+            setBuilding(true);
+            try {
+              await triggerWorkflow(token, owner, repo, 'build-apk.yml', 'main');
+              Alert.alert('Build queued', 'Refresh in ~30s to see it.');
+              setTimeout(() => refetch(), 3000);
+            } catch (e: any) {
+              Alert.alert(
+                'Build failed',
+                e?.response?.data?.message || e?.message || 'Unknown error',
+              );
+            } finally {
+              setBuilding(false);
+            }
+          },
+        },
+      ],
+    );
+  }
 
   async function handleDownloadApk(run: WorkflowRun) {
     if (!token || !owner || !repo) return;
@@ -149,8 +179,25 @@ export default function BuildsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <View className="px-5 pt-4 pb-3 border-b border-border">
-        <Text className="text-3xl font-bold text-text">Builds</Text>
-        <Text className="text-sm text-muted">{owner}/{repo}</Text>
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1">
+            <Text className="text-3xl font-bold text-text">Builds</Text>
+            <Text className="text-sm text-muted">{owner}/{repo}</Text>
+          </View>
+          <TouchableOpacity
+            className={`px-4 py-2 rounded-xl ml-2 ${
+              building ? 'bg-muted' : 'bg-primary'
+            }`}
+            onPress={handleBuildNow}
+            disabled={building}
+          >
+            {building ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text className="text-white font-semibold text-sm">🚀 Build</Text>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
 
       <FlatList

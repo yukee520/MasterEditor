@@ -67,7 +67,7 @@ export default function EditorScreen() {
 
     setSaving(true);
     try {
-      const commitMessage = `Update ${name || path}`;
+      const commitMessage = `Update ${name || path} [skip ci]`;
       await putFileContent(
         token,
         owner,
@@ -117,7 +117,7 @@ export default function EditorScreen() {
                 repo,
                 path,
                 fileData.sha,
-                `Delete ${name || path}`,
+                `Delete ${name || path} [skip ci]`,
               );
               await queryClient.invalidateQueries({
                 queryKey: ['contents'],

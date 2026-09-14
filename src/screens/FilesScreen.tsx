@@ -15,6 +15,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useRepoContents } from '../hooks/useRepoContents';
 import FileRow from '../components/FileRow';
 import type { GitHubContent } from '../types/github';
+import { triggerWorkflow } from '../api/workflows';
 
 type RouteParams = {
   owner?: string;
@@ -40,6 +41,36 @@ export default function FilesScreen() {
     refetch,
     isRefetching,
   } = useRepoContents(token, owner ?? '', repo ?? '', currentPath);
+
+  const [building, setBuilding] = React.useState(false);
+
+  async function handleBuild() {
+    if (!token || !owner || !repo) return;
+    Alert.alert(
+      'Trigger build?',
+      `This will run the GitHub Actions workflow for ${owner}/${repo}. Takes ~10 minutes.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Build now',
+          onPress: async () => {
+            setBuilding(true);
+            try {
+              await triggerWorkflow(token, owner, repo, 'build-apk.yml', 'main');
+              Alert.alert('Build queued', 'Check the Builds tab in ~10 minutes.');
+            } catch (e: any) {
+              Alert.alert(
+                'Build failed',
+                e?.response?.data?.message || e?.message || 'Unknown error',
+              );
+            } finally {
+              setBuilding(false);
+            }
+          },
+        },
+      ],
+    );
+  }
 
   // Refetch when this screen gains focus (e.g., coming back from editor)
   useFocusEffect(
@@ -143,6 +174,19 @@ export default function FilesScreen() {
           >
             {repo}
           </Text>
+          <TouchableOpacity
+            className={`px-4 py-2 rounded-xl ml-2 ${
+              building ? 'bg-muted' : 'bg-primary'
+            }`}
+            onPress={handleBuild}
+            disabled={building}
+          >
+            {building ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text className="text-white font-semibold text-sm">🚀 Build</Text>
+            )}
+          </TouchableOpacity>
         </View>
         <Text className="text-xs text-muted" numberOfLines={1}>
           {owner} / {repo}
