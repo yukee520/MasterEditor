@@ -16,7 +16,6 @@ import { useRepoContents } from '../hooks/useRepoContents';
 import FileRow from '../components/FileRow';
 import type { GitHubContent } from '../types/github';
 import { triggerWorkflow } from '../api/workflows';
-import NewFileModal from '../components/NewFileModal';
 
 type RouteParams = {
   owner?: string;
@@ -44,7 +43,6 @@ export default function FilesScreen() {
   } = useRepoContents(token, owner ?? '', repo ?? '', currentPath);
 
   const [building, setBuilding] = React.useState(false);
-  const [showNewFile, setShowNewFile] = React.useState(false);
 
   async function handleBuild() {
     if (!token || !owner || !repo) return;
@@ -110,13 +108,13 @@ export default function FilesScreen() {
   // No project selected
   if (!owner || !repo) {
     return (
-      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
+      <SafeAreaView className="flex-1 bg-background">
         <View className="flex-1 items-center justify-center p-8">
           <Text className="text-5xl mb-4">📂</Text>
-          <Text className="text-xl font-bold text-text dark:text-dark-text mb-2">
+          <Text className="text-xl font-bold text-text mb-2">
             No project selected
           </Text>
-          <Text className="text-base text-muted dark:text-dark-muted text-center mb-6">
+          <Text className="text-base text-muted text-center mb-6">
             Choose a project from the Projects tab to browse its files.
           </Text>
           <TouchableOpacity
@@ -133,10 +131,10 @@ export default function FilesScreen() {
   // Loading first time
   if (isLoading && !contents) {
     return (
-      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
+      <SafeAreaView className="flex-1 bg-background">
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#2563EB" />
-          <Text className="text-muted dark:text-dark-muted mt-4">Loading files…</Text>
+          <Text className="text-muted mt-4">Loading files…</Text>
         </View>
       </SafeAreaView>
     );
@@ -145,13 +143,13 @@ export default function FilesScreen() {
   // Error
   if (isError) {
     return (
-      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
+      <SafeAreaView className="flex-1 bg-background">
         <View className="flex-1 items-center justify-center p-8">
           <Text className="text-5xl mb-4">⚠️</Text>
-          <Text className="text-xl font-bold text-text dark:text-dark-text mb-2">
+          <Text className="text-xl font-bold text-text mb-2">
             Could not load files
           </Text>
-          <Text className="text-sm text-muted dark:text-dark-muted text-center mb-6">
+          <Text className="text-sm text-muted text-center mb-6">
             {(error as any)?.message || 'Unknown error'}
           </Text>
           <TouchableOpacity
@@ -166,22 +164,16 @@ export default function FilesScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
+    <SafeAreaView className="flex-1 bg-background">
       {/* Header */}
-      <View className="px-5 pt-4 pb-3 border-b border-border dark:border-dark-border">
+      <View className="px-5 pt-4 pb-3 border-b border-border">
         <View className="flex-row items-center justify-between mb-1">
           <Text
-            className="text-2xl font-bold text-text dark:text-dark-text flex-1"
+            className="text-2xl font-bold text-text flex-1"
             numberOfLines={1}
           >
             {repo}
           </Text>
-          <TouchableOpacity
-            className="bg-secondary px-3 py-2 rounded-xl ml-2"
-            onPress={() => setShowNewFile(true)}
-          >
-            <Text className="text-white font-semibold text-sm">+ File</Text>
-          </TouchableOpacity>
           <TouchableOpacity
             className={`px-4 py-2 rounded-xl ml-2 ${
               building ? 'bg-muted' : 'bg-primary'
@@ -192,11 +184,11 @@ export default function FilesScreen() {
             {building ? (
               <ActivityIndicator size="small" color="#fff" />
             ) : (
-              <Text className="text-white font-semibold text-sm">🚀</Text>
+              <Text className="text-white font-semibold text-sm">🚀 Build</Text>
             )}
           </TouchableOpacity>
         </View>
-        <Text className="text-xs text-muted dark:text-dark-muted" numberOfLines={1}>
+        <Text className="text-xs text-muted" numberOfLines={1}>
           {owner} / {repo}
           {currentPath ? ` / ${currentPath}` : ''}
         </Text>
@@ -232,22 +224,11 @@ export default function FilesScreen() {
         ListEmptyComponent={
           <View className="items-center justify-center py-20">
             <Text className="text-4xl mb-3">📭</Text>
-            <Text className="text-base text-muted dark:text-dark-muted">
+            <Text className="text-base text-muted">
               This folder is empty.
             </Text>
           </View>
         }
-      />
-
-      <NewFileModal
-        visible={showNewFile}
-        owner={owner ?? ''}
-        repo={repo ?? ''}
-        currentPath={currentPath}
-        onClose={() => setShowNewFile(false)}
-        onCreated={() => {
-          refetch();
-        }}
       />
     </SafeAreaView>
   );

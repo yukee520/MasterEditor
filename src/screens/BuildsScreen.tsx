@@ -169,11 +169,11 @@ export default function BuildsScreen() {
 
   if (!owner || !repo) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
         <View className="flex-1 items-center justify-center p-8">
           <Text className="text-5xl mb-4">🏗️</Text>
-          <Text className="text-xl font-bold text-text mb-2">No project selected</Text>
-          <Text className="text-base text-muted text-center mb-6">
+          <Text className="text-xl font-bold text-text dark:text-dark-text mb-2">No project selected</Text>
+          <Text className="text-base text-muted dark:text-dark-muted text-center mb-6">
             Pick a project from the Projects tab to see its builds.
           </Text>
           <TouchableOpacity
@@ -189,10 +189,10 @@ export default function BuildsScreen() {
 
   if (isLoading && !runs) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#2563EB" />
-          <Text className="text-muted mt-4">Loading builds…</Text>
+          <Text className="text-muted dark:text-dark-muted mt-4">Loading builds…</Text>
         </View>
       </SafeAreaView>
     );
@@ -200,11 +200,11 @@ export default function BuildsScreen() {
 
   if (isError) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
         <View className="flex-1 items-center justify-center p-8">
           <Text className="text-5xl mb-4">⚠️</Text>
-          <Text className="text-xl font-bold text-text mb-2">Could not load builds</Text>
-          <Text className="text-sm text-muted text-center mb-6">
+          <Text className="text-xl font-bold text-text dark:text-dark-text mb-2">Could not load builds</Text>
+          <Text className="text-sm text-muted dark:text-dark-muted text-center mb-6">
             {(error as any)?.message || 'Unknown error'}
           </Text>
           <TouchableOpacity
@@ -219,12 +219,12 @@ export default function BuildsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
-      <View className="px-5 pt-4 pb-3 border-b border-border">
+    <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
+      <View className="px-5 pt-4 pb-3 border-b border-border dark:border-dark-border">
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
-            <Text className="text-3xl font-bold text-text">Builds</Text>
-            <Text className="text-sm text-muted">{owner}/{repo}</Text>
+            <Text className="text-3xl font-bold text-text dark:text-dark-text">Builds</Text>
+            <Text className="text-sm text-muted dark:text-dark-muted">{owner}/{repo}</Text>
           </View>
           <TouchableOpacity
             className={`px-4 py-2 rounded-xl ml-2 ${
@@ -256,9 +256,9 @@ export default function BuildsScreen() {
         renderItem={({ item }) => {
           const badge = statusBadge(item);
           return (
-            <View className="bg-card rounded-2xl p-4 mb-3 border border-border">
+            <View className="bg-card dark:bg-dark-card rounded-2xl p-4 mb-3 border border-border dark:border-dark-border">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-base font-bold text-text flex-1" numberOfLines={1}>
+                <Text className="text-base font-bold text-text dark:text-dark-text flex-1" numberOfLines={1}>
                   #{item.run_number} · {item.name}
                 </Text>
                 <View
@@ -273,7 +273,7 @@ export default function BuildsScreen() {
                   </Text>
                 </View>
               </View>
-              <Text className="text-xs text-muted mb-3">
+              <Text className="text-xs text-muted dark:text-dark-muted mb-3">
                 {item.head_branch} · {timeAgo(item.created_at)}
               </Text>
 
@@ -313,8 +313,8 @@ export default function BuildsScreen() {
         ListEmptyComponent={
           <View className="items-center justify-center py-20">
             <Text className="text-4xl mb-3">🎉</Text>
-            <Text className="text-base text-muted">No builds yet.</Text>
-            <Text className="text-xs text-muted mt-2 text-center">
+            <Text className="text-base text-muted dark:text-dark-muted">No builds yet.</Text>
+            <Text className="text-xs text-muted dark:text-dark-muted mt-2 text-center">
               Push a commit to trigger the workflow.
             </Text>
           </View>

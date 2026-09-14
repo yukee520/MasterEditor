@@ -76,13 +76,13 @@ export default function ProjectsScreen() {
   // Not logged in
   if (!token) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
         <View className="flex-1 items-center justify-center p-8">
           <Text className="text-5xl mb-4">🔒</Text>
-          <Text className="text-xl font-bold text-text mb-2">
+          <Text className="text-xl font-bold text-text dark:text-dark-text mb-2">
             Not connected
           </Text>
-          <Text className="text-base text-muted text-center mb-6">
+          <Text className="text-base text-muted dark:text-dark-muted text-center mb-6">
             Connect your GitHub account in Settings to see your projects.
           </Text>
           <TouchableOpacity
@@ -99,10 +99,10 @@ export default function ProjectsScreen() {
   // Loading (first time)
   if (isLoading && !repos) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#2563EB" />
-          <Text className="text-muted mt-4">Loading your projects…</Text>
+          <Text className="text-muted dark:text-dark-muted mt-4">Loading your projects…</Text>
         </View>
       </SafeAreaView>
     );
@@ -111,13 +111,13 @@ export default function ProjectsScreen() {
   // Error
   if (isError) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
         <View className="flex-1 items-center justify-center p-8">
           <Text className="text-5xl mb-4">⚠️</Text>
-          <Text className="text-xl font-bold text-text mb-2">
+          <Text className="text-xl font-bold text-text dark:text-dark-text mb-2">
             Could not load projects
           </Text>
-          <Text className="text-sm text-muted text-center mb-6">
+          <Text className="text-sm text-muted dark:text-dark-muted text-center mb-6">
             {(error as any)?.message || 'Unknown error'}
           </Text>
           <TouchableOpacity
@@ -133,11 +133,11 @@ export default function ProjectsScreen() {
 
   // Main list
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
       <View className="px-5 pt-4 pb-2 flex-row items-center justify-between">
         <View className="flex-1">
-          <Text className="text-3xl font-bold text-text">Projects</Text>
-          <Text className="text-sm text-muted">
+          <Text className="text-3xl font-bold text-text dark:text-dark-text">Projects</Text>
+          <Text className="text-sm text-muted dark:text-dark-muted">
             {user?.login} · {repos?.length ?? 0} repositor
             {repos?.length === 1 ? 'y' : 'ies'}
           </Text>
@@ -180,7 +180,7 @@ export default function ProjectsScreen() {
         ListEmptyComponent={
           <View className="items-center justify-center py-20">
             <Text className="text-4xl mb-3">📦</Text>
-            <Text className="text-base text-muted">
+            <Text className="text-base text-muted dark:text-dark-muted">
               No repositories yet.
             </Text>
           </View>

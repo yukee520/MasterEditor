@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import Toast from 'react-native-toast-message';
 
 import RootNavigator from './src/navigation/RootNavigator';
+import ThemeProvider from './src/components/ThemeProvider';
 import { useAuthStore } from './src/store/useAuthStore';
 import './global.css';
 
@@ -28,8 +29,10 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <RootNavigator />
-          <Toast />
+          <ThemeProvider>
+            <RootNavigator />
+            <Toast />
+          </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

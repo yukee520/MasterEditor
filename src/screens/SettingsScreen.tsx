@@ -8,13 +8,16 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Switch,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuthStore } from '../store/useAuthStore';
+import { useThemeStore } from '../store/useThemeStore';
 import { getCurrentUser } from '../api/github';
 
 export default function SettingsScreen() {
   const { token, user, setToken, clear, setError, error } = useAuthStore();
+  const { mode, setMode } = useThemeStore();
   const [inputToken, setInputToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [showToken, setShowToken] = useState(false);
@@ -64,26 +67,26 @@ export default function SettingsScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
       <ScrollView contentContainerClassName="p-5">
-        <Text className="text-3xl font-bold text-text mb-1">Settings</Text>
-        <Text className="text-base text-muted mb-6">
+        <Text className="text-3xl font-bold text-text dark:text-dark-text mb-1">Settings</Text>
+        <Text className="text-base text-muted dark:text-dark-muted mb-6">
           Connect your GitHub account to manage projects.
         </Text>
 
         {/* Logged in card */}
         {user && token ? (
-          <View className="bg-card rounded-2xl p-5 mb-6 border border-border">
+          <View className="bg-card dark:bg-dark-card rounded-2xl p-5 mb-6 border border-border dark:border-dark-border">
             <View className="flex-row items-center mb-3">
               <Image
                 source={{ uri: user.avatar_url }}
                 className="w-14 h-14 rounded-full mr-4"
               />
               <View className="flex-1">
-                <Text className="text-lg font-bold text-text">
+                <Text className="text-lg font-bold text-text dark:text-dark-text">
                   {user.name || user.login}
                 </Text>
-                <Text className="text-sm text-muted">@{user.login}</Text>
+                <Text className="text-sm text-muted dark:text-dark-muted">@{user.login}</Text>
               </View>
             </View>
             <View className="flex-row justify-between mt-2">
@@ -104,17 +107,17 @@ export default function SettingsScreen() {
         ) : null}
 
         {/* Token input */}
-        <View className="bg-card rounded-2xl p-5 mb-6 border border-border">
-          <Text className="text-base font-semibold text-text mb-3">
+        <View className="bg-card dark:bg-dark-card rounded-2xl p-5 mb-6 border border-border dark:border-dark-border">
+          <Text className="text-base font-semibold text-text dark:text-dark-text mb-3">
             {user ? 'Replace token' : 'GitHub Personal Access Token'}
           </Text>
-          <Text className="text-xs text-muted mb-3">
+          <Text className="text-xs text-muted dark:text-dark-muted mb-3">
             Create a token at github.com/settings/tokens with scopes: repo, workflow
           </Text>
 
-          <View className="flex-row items-center border border-border rounded-xl mb-4 bg-background">
+          <View className="flex-row items-center border border-border dark:border-dark-border rounded-xl mb-4 bg-background dark:bg-dark-bg">
             <TextInput
-              className="flex-1 px-4 py-3 text-text"
+              className="flex-1 px-4 py-3 text-text dark:text-dark-text"
               placeholder="ghp_..."
               placeholderTextColor="#94A3B8"
               value={inputToken}
@@ -154,12 +157,30 @@ export default function SettingsScreen() {
           ) : null}
         </View>
 
+        {/* Theme */}
+        <View className="bg-card dark:bg-dark-card rounded-2xl p-5 mb-6 border border-border dark:border-dark-border">
+          <View className="flex-row items-center justify-between">
+            <View className="flex-1">
+              <Text className="text-base font-semibold text-text dark:text-dark-text">
+                🌗 Dark mode
+              </Text>
+              <Text className="text-xs text-muted dark:text-dark-muted mt-1">
+                {mode === 'dark' ? 'Currently on' : 'Currently off'}
+              </Text>
+            </View>
+            <Switch
+              value={mode === 'dark'}
+              onValueChange={(v) => setMode(v ? 'dark' : 'light')}
+            />
+          </View>
+        </View>
+
         {/* Info */}
-        <View className="bg-card rounded-2xl p-5 border border-border">
-          <Text className="text-sm font-semibold text-text mb-2">
+        <View className="bg-card dark:bg-dark-card rounded-2xl p-5 border border-border dark:border-dark-border">
+          <Text className="text-sm font-semibold text-text dark:text-dark-text mb-2">
             🔒 Privacy
           </Text>
-          <Text className="text-xs text-muted leading-5">
+          <Text className="text-xs text-muted dark:text-dark-muted leading-5">
             Your token is stored locally on this device only. It is never sent
             anywhere except directly to api.github.com.
           </Text>

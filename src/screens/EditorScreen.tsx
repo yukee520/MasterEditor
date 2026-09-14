@@ -140,13 +140,13 @@ export default function EditorScreen() {
   // No file selected
   if (!owner || !repo || !path) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
         <View className="flex-1 items-center justify-center p-8">
           <Text className="text-5xl mb-4">📝</Text>
-          <Text className="text-xl font-bold text-text mb-2">
+          <Text className="text-xl font-bold text-text dark:text-dark-text mb-2">
             No file open
           </Text>
-          <Text className="text-base text-muted text-center mb-6">
+          <Text className="text-base text-muted dark:text-dark-muted text-center mb-6">
             Pick a file from the Files tab to view or edit it.
           </Text>
           <TouchableOpacity
@@ -163,10 +163,10 @@ export default function EditorScreen() {
   // Loading
   if (isLoading && !fileData) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color="#2563EB" />
-          <Text className="text-muted mt-4">Loading file…</Text>
+          <Text className="text-muted dark:text-dark-muted mt-4">Loading file…</Text>
         </View>
       </SafeAreaView>
     );
@@ -175,13 +175,13 @@ export default function EditorScreen() {
   // Error
   if (isError) {
     return (
-      <SafeAreaView className="flex-1 bg-background">
+      <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
         <View className="flex-1 items-center justify-center p-8">
           <Text className="text-5xl mb-4">⚠️</Text>
-          <Text className="text-xl font-bold text-text mb-2">
+          <Text className="text-xl font-bold text-text dark:text-dark-text mb-2">
             Could not load file
           </Text>
-          <Text className="text-sm text-muted text-center mb-6">
+          <Text className="text-sm text-muted dark:text-dark-muted text-center mb-6">
             {(error as any)?.message || 'Unknown error'}
           </Text>
           <TouchableOpacity
@@ -196,25 +196,25 @@ export default function EditorScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-background dark:bg-dark-bg">
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
-        <View className="px-5 pt-4 pb-3 border-b border-border">
-          <Text className="text-lg font-bold text-text" numberOfLines={1}>
+        <View className="px-5 pt-4 pb-3 border-b border-border dark:border-dark-border">
+          <Text className="text-lg font-bold text-text dark:text-dark-text" numberOfLines={1}>
             {name}
           </Text>
-          <Text className="text-xs text-muted" numberOfLines={1}>
+          <Text className="text-xs text-muted dark:text-dark-muted" numberOfLines={1}>
             {owner}/{repo}/{path}
           </Text>
         </View>
 
         {/* Editor */}
-        <ScrollView className="flex-1 bg-card" contentContainerStyle={{ flexGrow: 1 }}>
+        <ScrollView className="flex-1 bg-card dark:bg-dark-card" contentContainerStyle={{ flexGrow: 1 }}>
           <TextInput
-            className="flex-1 p-4 text-text font-mono text-sm"
+            className="flex-1 p-4 text-text dark:text-dark-text font-mono text-sm"
             multiline
             value={text}
             onChangeText={setText}
@@ -226,7 +226,7 @@ export default function EditorScreen() {
         </ScrollView>
 
         {/* Actions */}
-        <View className="flex-row p-4 border-t border-border bg-background">
+        <View className="flex-row p-4 border-t border-border dark:border-dark-border bg-background dark:bg-dark-bg">
           <TouchableOpacity
             className="flex-1 bg-danger/10 border border-danger rounded-xl py-3 items-center mr-2"
             onPress={handleDelete}
