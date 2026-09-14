@@ -14,6 +14,7 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 
 import { useAuthStore } from '../store/useAuthStore';
 import { useWorkflowRuns } from '../hooks/useWorkflowRuns';
+import RNFS from 'react-native-fs';
 import { listRunArtifacts, triggerWorkflow, WorkflowRun } from '../api/workflows';
 
 type RouteParams = {
@@ -65,6 +66,7 @@ export default function BuildsScreen() {
 
   const [downloading, setDownloading] = useState<number | null>(null);
   const [building, setBuilding] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   async function handleBuildNow() {
     if (!token || !owner || !repo) return;
@@ -98,6 +100,7 @@ export default function BuildsScreen() {
   async function handleDownloadApk(run: WorkflowRun) {
     if (!token || !owner || !repo) return;
     setDownloading(run.id);
+    setDownloadProgress(0);
     try {
       const artifacts = await listRunArtifacts(token, owner, repo, run.id);
       const apkArtifact = artifacts.find((a) => !a.expired);
@@ -105,23 +108,62 @@ export default function BuildsScreen() {
         Alert.alert('No APK', 'No artifacts found for this run.');
         return;
       }
-      // Open the run page in browser — GitHub requires auth to download artifacts
-      // For a real in-app download we'd need to fetch with auth and save to FS.
-      Alert.alert(
-        'Open in browser?',
-        `Download ${apkArtifact.name} (${(apkArtifact.size_in_bytes / 1024 / 1024).toFixed(1)} MB) from GitHub. You'll need to be logged in on the browser.`,
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Open GitHub',
-            onPress: () => Linking.openURL(run.html_url),
-          },
-        ],
-      );
+
+      const sizeMB = (apkArtifact.size_in_bytes / 1024 / 1024).toFixed(1);
+      const confirm = await new Promise<boolean>((resolve) => {
+        Alert.alert(
+          'Download APK?',
+          apkArtifact.name + ' (' + sizeMB + ' MB)\n\nSaved to app folder. Extract the zip to get the APK.',
+          [
+            { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+            { text: 'Download', onPress: () => resolve(true) },
+          ],
+        );
+      });
+      if (!confirm) return;
+
+      const downloadUrl =
+        'https://api.github.com/repos/' +
+        owner +
+        '/' +
+        repo +
+        '/actions/artifacts/' +
+        apkArtifact.id +
+        '/zip';
+
+      const destDir = RNFS.DocumentDirectoryPath + '/apks';
+      const destPath = destDir + '/' + repo + '-run' + run.run_number + '.zip';
+
+      const dirExists = await RNFS.exists(destDir);
+      if (!dirExists) await RNFS.mkdir(destDir);
+
+      const result = await RNFS.downloadFile({
+        toFile: destPath,
+        fromUrl: downloadUrl,
+        headers: {
+          Authorization: 'Bearer ' + token,
+          Accept: 'application/vnd.github+json',
+        },
+        progress: (res) => {
+          const pct = res.bytesWritten / res.contentLength;
+          setDownloadProgress(isFinite(pct) ? pct : 0);
+        },
+        progressDivider: 5,
+      }).promise;
+
+      if (result.statusCode === 200) {
+        Alert.alert(
+          'Downloaded',
+          'Saved to:\n' + destPath + '\n\nExtract the zip to install the APK.',
+        );
+      } else {
+        Alert.alert('Download failed', 'HTTP ' + result.statusCode);
+      }
     } catch (e: any) {
       Alert.alert('Error', e?.message || 'Unknown error');
     } finally {
       setDownloading(null);
+      setDownloadProgress(0);
     }
   }
 
@@ -251,9 +293,16 @@ export default function BuildsScreen() {
                     disabled={downloading === item.id}
                   >
                     {downloading === item.id ? (
-                      <ActivityIndicator color="#fff" size="small" />
+                      <View className="flex-row items-center">
+                        <ActivityIndicator color="#fff" size="small" />
+                        <Text className="text-white font-semibold text-xs ml-2">
+                          {Math.round(downloadProgress * 100)}%
+                        </Text>
+                      </View>
                     ) : (
-                      <Text className="text-white font-semibold text-sm">Get APK</Text>
+                      <Text className="text-white font-semibold text-sm">
+                        Download APK
+                      </Text>
                     )}
                   </TouchableOpacity>
                 ) : null}
