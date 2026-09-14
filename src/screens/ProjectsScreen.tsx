@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../store/useAuthStore';
 import { useRepos } from '../hooks/useRepos';
 import ProjectCard from '../components/ProjectCard';
+import CreateProjectModal from '../components/CreateProjectModal';
 
 export default function ProjectsScreen() {
   const navigation = useNavigation<any>();
@@ -25,6 +26,7 @@ export default function ProjectsScreen() {
     refetch,
     isRefetching,
   } = useRepos(token);
+  const [showCreate, setShowCreate] = useState(false);
 
   // Not logged in
   if (!token) {
@@ -87,12 +89,20 @@ export default function ProjectsScreen() {
   // Main list
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="px-5 pt-4 pb-2">
-        <Text className="text-3xl font-bold text-text">Projects</Text>
-        <Text className="text-sm text-muted">
-          {user?.login} · {repos?.length ?? 0} repositor
-          {repos?.length === 1 ? 'y' : 'ies'}
-        </Text>
+      <View className="px-5 pt-4 pb-2 flex-row items-center justify-between">
+        <View className="flex-1">
+          <Text className="text-3xl font-bold text-text">Projects</Text>
+          <Text className="text-sm text-muted">
+            {user?.login} · {repos?.length ?? 0} repositor
+            {repos?.length === 1 ? 'y' : 'ies'}
+          </Text>
+        </View>
+        <TouchableOpacity
+          className="bg-primary w-12 h-12 rounded-full items-center justify-center"
+          onPress={() => setShowCreate(true)}
+        >
+          <Text className="text-white text-3xl font-light" style={{ marginTop: -2 }}>+</Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
@@ -125,6 +135,14 @@ export default function ProjectsScreen() {
             </Text>
           </View>
         }
+      />
+
+      <CreateProjectModal
+        visible={showCreate}
+        onClose={() => setShowCreate(false)}
+        onSuccess={() => {
+          refetch();
+        }}
       />
     </SafeAreaView>
   );
