@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import ProjectsScreen from '../screens/ProjectsScreen';
 import FilesScreen from '../screens/FilesScreen';
+import EditorScreen from '../screens/EditorScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
@@ -29,6 +30,11 @@ export default function TabNavigator() {
         name="FilesTab"
         component={FilesScreen}
         options={{ title: 'Files' }}
+      />
+      <Tab.Screen
+        name="EditorTab"
+        component={EditorScreen}
+        options={{ title: 'Editor' }}
       />
       <Tab.Screen
         name="SettingsTab"
