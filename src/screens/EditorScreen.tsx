@@ -79,12 +79,14 @@ export default function EditorScreen() {
       );
       setOriginalText(text);
 
-      // Invalidate file + contents cache so fresh data loads
+      // Force fresh data everywhere
       await queryClient.invalidateQueries({
         queryKey: ['file', token, owner, repo, path],
+        refetchType: 'all',
       });
       await queryClient.invalidateQueries({
         queryKey: ['contents'],
+        refetchType: 'all',
       });
 
       Alert.alert('Saved', `Committed to ${owner}/${repo}`);
@@ -119,6 +121,7 @@ export default function EditorScreen() {
               );
               await queryClient.invalidateQueries({
                 queryKey: ['contents'],
+                refetchType: 'all',
               });
               Alert.alert('Deleted', 'File removed from GitHub');
               // Go back to Files tab

@@ -9,7 +9,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRoute, useNavigation } from '@react-navigation/native';
+import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native';
 
 import { useAuthStore } from '../store/useAuthStore';
 import { useRepoContents } from '../hooks/useRepoContents';
@@ -40,6 +40,15 @@ export default function FilesScreen() {
     refetch,
     isRefetching,
   } = useRepoContents(token, owner ?? '', repo ?? '', currentPath);
+
+  // Refetch when this screen gains focus (e.g., coming back from editor)
+  useFocusEffect(
+    useCallback(() => {
+      if (owner && repo) {
+        refetch();
+      }
+    }, [owner, repo, refetch]),
+  );
 
   const handleBack = useCallback(() => {
     if (!currentPath) return;
