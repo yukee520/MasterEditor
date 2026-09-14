@@ -43,3 +43,15 @@ export async function listTemplateRepos(token: string): Promise<GitHubRepo[]> {
   });
   return data.filter((r) => r.is_template);
 }
+
+/**
+ * Delete a repository. Requires `delete_repo` scope on the token.
+ */
+export async function deleteRepo(
+  token: string,
+  owner: string,
+  repo: string,
+): Promise<void> {
+  const client = createGitHubClient(token);
+  await client.delete(`/repos/${owner}/${repo}`);
+}

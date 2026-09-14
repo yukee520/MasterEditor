@@ -5,6 +5,7 @@ import type { GitHubRepo } from '../types/github';
 type Props = {
   repo: GitHubRepo;
   onPress: () => void;
+  onLongPress?: () => void;
 };
 
 function timeAgo(iso: string): string {
@@ -19,11 +20,13 @@ function timeAgo(iso: string): string {
   return `${months}mo ago`;
 }
 
-export default function ProjectCard({ repo, onPress }: Props) {
+export default function ProjectCard({ repo, onPress, onLongPress }: Props) {
   return (
     <TouchableOpacity
       className="bg-card rounded-2xl p-4 mb-3 border border-border"
       onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={500}
       activeOpacity={0.7}
     >
       <View className="flex-row items-center justify-between mb-1">
