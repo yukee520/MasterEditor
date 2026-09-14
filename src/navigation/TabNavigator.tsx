@@ -5,18 +5,12 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import ProjectsScreen from '../screens/ProjectsScreen';
 import FilesScreen from '../screens/FilesScreen';
 import EditorScreen from '../screens/EditorScreen';
+import BuildsScreen from '../screens/BuildsScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 
-type IconName = string;
-
-function tabIcon(
-  name: IconName,
-  focused: boolean,
-  color: string,
-  size: number,
-) {
+function tabIcon(name: string, color: string, size: number) {
   return <Ionicons name={name} size={size} color={color} />;
 }
 
@@ -34,7 +28,7 @@ export default function TabNavigator() {
           height: 60,
         },
         tabBarLabelStyle: {
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: '600',
         },
       }}
@@ -45,7 +39,7 @@ export default function TabNavigator() {
         options={{
           title: 'Projects',
           tabBarIcon: ({ focused, color, size }) =>
-            tabIcon(focused ? 'folder' : 'folder-outline', focused, color, size),
+            tabIcon(focused ? 'folder' : 'folder-outline', color, size),
         }}
       />
       <Tab.Screen
@@ -54,7 +48,7 @@ export default function TabNavigator() {
         options={{
           title: 'Files',
           tabBarIcon: ({ focused, color, size }) =>
-            tabIcon(focused ? 'document-text' : 'document-text-outline', focused, color, size),
+            tabIcon(focused ? 'document-text' : 'document-text-outline', color, size),
         }}
       />
       <Tab.Screen
@@ -63,7 +57,16 @@ export default function TabNavigator() {
         options={{
           title: 'Editor',
           tabBarIcon: ({ focused, color, size }) =>
-            tabIcon(focused ? 'create' : 'create-outline', focused, color, size),
+            tabIcon(focused ? 'create' : 'create-outline', color, size),
+        }}
+      />
+      <Tab.Screen
+        name="BuildsTab"
+        component={BuildsScreen}
+        options={{
+          title: 'Builds',
+          tabBarIcon: ({ focused, color, size }) =>
+            tabIcon(focused ? 'hammer' : 'hammer-outline', color, size),
         }}
       />
       <Tab.Screen
@@ -72,7 +75,7 @@ export default function TabNavigator() {
         options={{
           title: 'Settings',
           tabBarIcon: ({ focused, color, size }) =>
-            tabIcon(focused ? 'settings' : 'settings-outline', focused, color, size),
+            tabIcon(focused ? 'settings' : 'settings-outline', color, size),
         }}
       />
     </Tab.Navigator>

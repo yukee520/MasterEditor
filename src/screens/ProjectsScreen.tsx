@@ -157,12 +157,16 @@ export default function ProjectsScreen() {
         renderItem={({ item }) => (
           <ProjectCard
             repo={item}
-            onPress={() =>
+            onPress={() => {
               navigation.navigate('FilesTab', {
                 owner: item.owner.login,
                 repo: item.name,
-              })
-            }
+              });
+              navigation.navigate('BuildsTab', {
+                owner: item.owner.login,
+                repo: item.name,
+              });
+            }}
             onLongPress={() => handleLongPress(item)}
           />
         )}
