@@ -1,4 +1,5 @@
 import { createGitHubClient } from './client';
+import { base64Decode, base64Encode } from '../utils/base64';
 import type { GitHubContent } from '../types/github';
 
 /**
@@ -36,9 +37,7 @@ export async function getFileContent(
     throw new Error('File has no base64 content');
   }
 
-  // GitHub returns base64 with line breaks — decode to UTF-8
-  const cleanBase64 = data.content.replace(/\n/g, '');
-  const text = decodeBase64Utf8(cleanBase64);
+  const text = base64Decode(data.content);
   return { text, sha: data.sha };
 }
 
@@ -59,7 +58,7 @@ export async function putFileContent(
   const url = `/repos/${owner}/${repo}/contents/${path}`;
   const body: Record<string, any> = {
     message,
-    content: encodeBase64Utf8(text),
+    content: base64Encode(text),
   };
   if (sha) body.sha = sha;
   await client.put(url, body);
@@ -81,24 +80,4 @@ export async function deleteFile(
   await client.delete(url, {
     data: { message, sha },
   });
-}
-
-// ---- Base64 helpers (handle UTF-8 correctly) ----
-
-function decodeBase64Utf8(b64: string): string {
-  const binary = global.atob(b64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new TextDecoder('utf-8').decode(bytes);
-}
-
-function encodeBase64Utf8(str: string): string {
-  const bytes = new TextEncoder().encode(str);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return global.btoa(binary);
 }
